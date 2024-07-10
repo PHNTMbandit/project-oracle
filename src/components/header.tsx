@@ -10,7 +10,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
     return (
       <nav
         className={cn(
-          "sticky top-0 grid grid-cols-3 mb-6 bg-background",
+          "sticky z-10 top-0 grid grid-cols-3 mb-6 bg-background",
           className
         )}
         ref={ref}
