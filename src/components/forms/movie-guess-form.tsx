@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { movieGuessFormSchema } from "@/lib/schemas/movie-guess-schema";
 import { SearchBar } from "../search-bar";
 import { SubmitButton } from "../submit-button";
-import { submitGuess } from "@/app/category/[name]/[quizId]/action";
+import { submitGuess } from "@/app/(logged-in)/category/[name]/[quizId]/action";
 import { Movie } from "@/types/movie-types";
 
 export interface MovieGuessFormProps
@@ -23,7 +23,8 @@ const MovieGuessForm = React.forwardRef<HTMLDivElement, MovieGuessFormProps>(
     const form = useForm<z.infer<typeof movieGuessFormSchema>>({
       resolver: zodResolver(movieGuessFormSchema),
       defaultValues: {
-        movieTitle: "",
+        movieTitleGuess: "",
+        correctMovieId: correctAnswer.id,
         correctMovieTitle: correctAnswer.title,
       },
     });
@@ -42,7 +43,7 @@ const MovieGuessForm = React.forwardRef<HTMLDivElement, MovieGuessFormProps>(
           <form action={formAction}>
             <FormField
               control={form.control}
-              name="movieTitle"
+              name="movieTitleGuess"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -55,6 +56,21 @@ const MovieGuessForm = React.forwardRef<HTMLDivElement, MovieGuessFormProps>(
                         className
                       )}
                       {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="correctMovieId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <input
+                      {...field}
+                      type="hidden"
+                      value={correctAnswer.id}
                     />
                   </FormControl>
                 </FormItem>

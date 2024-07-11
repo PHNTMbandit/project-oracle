@@ -1,12 +1,16 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
 
 export interface HeaderProps
   extends React.AnchorHTMLAttributes<HTMLDivElement> {}
 
 const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
-  ({ className, children, ...props }, ref) => {
+  async ({ className, children, ...props }, ref) => {
+    const supabase = createClient();
+    const user = await supabase.auth.getUser();
+
     return (
       <nav
         className={cn(
@@ -21,6 +25,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             Project Oracle
           </h1>
         </Link>
+        {user.data.user?.email}
       </nav>
     );
   }
