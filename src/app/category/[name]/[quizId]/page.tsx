@@ -1,5 +1,5 @@
 import { BentoBox } from "@/components/bento-box";
-import { Input } from "@/components/ui/input";
+import { MovieGuessForm } from "@/components/forms/movie-guess-form";
 import { getMovieByID, getMovieKeywordsByID } from "@/lib/movies";
 import Color from "color";
 import Image from "next/image";
@@ -28,11 +28,11 @@ export default async function QuizPage({ params }: QuizProps) {
       <BentoBox
         backgroundColour={Color("#e9c46a")}
         className="col-span-5">
-        <Input placeholder={movie.title} />
+        <MovieGuessForm correctAnswer={movie} />
       </BentoBox>
       <BentoBox
         backgroundColour={Color("#f4a261")}
-        className="col-span-3 row-start-2">
+        className="col-span-6 row-start-2">
         <ul className="flex flex-col h-full flex-wrap gap-4">
           {keywords.map((keyword, index) => (
             <li key={index}>
