@@ -38,23 +38,6 @@ const MovieGuessForm = React.forwardRef<HTMLDivElement, MovieGuessFormProps>(
         ref={ref}
         {...props}>
         {children}
-        {/* {formState.message == "failed" && (
-          <Alert variant="destructive">
-            <AlertTitle>Oops!</AlertTitle>
-            <AlertDescription>
-              There was an issue signing you in.
-              <br /> Make sure you have an account by{" "}
-              <Link href={"/sign-up"}>
-                <Button
-                  variant={"link"}
-                  size={"tight"}>
-                  signing up
-                </Button>
-                .
-              </Link>
-            </AlertDescription>
-          </Alert>
-        )} */}
         <Form {...form}>
           <form action={formAction}>
             <FormField

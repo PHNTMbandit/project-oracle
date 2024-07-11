@@ -1,8 +1,5 @@
 import { BentoBox } from "@/components/bento-box";
 import { MovieGuessForm } from "@/components/forms/movie-guess-form";
-import { SearchBar } from "@/components/search-bar";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
 import { getMovieByID, getMovieKeywordsByID } from "@/lib/movies";
 import Color from "color";
 import Image from "next/image";
