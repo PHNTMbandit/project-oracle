@@ -7,7 +7,7 @@ export default function LoggedInLayout({
   children: React.ReactNode;
 }) {
   return (
-    <section>
+    <section className="p-6">
       <Header />
       {children}
     </section>

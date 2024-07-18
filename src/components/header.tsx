@@ -1,7 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Logo } from "./logo";
 import { createClient } from "@/utils/supabase/server";
+import { AccountButton } from "./account-button";
 
 export interface HeaderProps
   extends React.AnchorHTMLAttributes<HTMLDivElement> {}
@@ -9,7 +10,9 @@ export interface HeaderProps
 const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
   async ({ className, children, ...props }, ref) => {
     const supabase = createClient();
-    const user = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     return (
       <nav
@@ -20,12 +23,10 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         ref={ref}
         {...props}>
         {children}
-        <Link href={"/"}>
-          <h1 className="hover:tracking-widest transition-all">
-            Project Oracle
-          </h1>
-        </Link>
-        {user.data.user?.email}
+        <Logo />
+        <div className="col-start-3 space-x-3 place-self-end">
+          <AccountButton user={user} />
+        </div>
       </nav>
     );
   }

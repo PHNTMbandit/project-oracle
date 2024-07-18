@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const movieGuessFormSchema = z.object({
-  movieTitleGuess: z.string(),
-  correctMovieTitle: z.string(),
+  movieGuessId: z.coerce.number(),
   correctMovieId: z.coerce.number(),
 });

@@ -15,6 +15,7 @@ const SubmitButton = React.forwardRef<HTMLButtonElement, SubmitButtonProps>(
 
     return (
       <Button
+        variant={"round"}
         disabled={pending}
         type="submit"
         className={cn("", className)}
