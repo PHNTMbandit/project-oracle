@@ -9,7 +9,7 @@ import { useFormState } from "react-dom";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { movieGuessFormSchema } from "@/lib/schemas/movie-guess-schema";
 import { SubmitButton } from "../submit-button";
-import { submitGuess } from "@/app/(logged-in)/category/[name]/[quizId]/action";
+import { submitGuess } from "@/app/(logged-in)/category/[name]/action";
 import { Movie } from "@/types/movie-types";
 import { useDebouncedCallback } from "use-debounce";
 import { getMoviesBySearch } from "@/lib/movies";
