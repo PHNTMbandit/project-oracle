@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import * as Icons from "react-icons/fa6";
 
 export interface SignupFormProps
   extends React.AnchorHTMLAttributes<HTMLFormElement> {}
@@ -105,6 +106,7 @@ const SignupForm = React.forwardRef<HTMLFormElement, SignupFormProps>(
                 <FormItem>
                   <FormControl>
                     <Input
+                      icon={Icons.FaRegUser}
                       type={"username"}
                       placeholder="Username"
                       required
@@ -166,7 +168,7 @@ const SignupForm = React.forwardRef<HTMLFormElement, SignupFormProps>(
                 </FormItem>
               )}
             />
-            <SubmitButton>Signup</SubmitButton>
+            <SubmitButton className="w-full">Sign up</SubmitButton>
           </form>
         </Form>
       </>

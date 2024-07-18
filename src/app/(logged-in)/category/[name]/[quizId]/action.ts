@@ -11,11 +11,11 @@ export async function submitGuess(prevState: any, formData: FormData) {
   } = await supabase.auth.getUser();
   const rawFormData = Object.fromEntries(formData);
   const validation = movieGuessFormSchema.safeParse(rawFormData);
-
+  console.log(validation.error);
   if (validation.success) {
     try {
       if (
-        validation.data.movieTitleGuess == validation.data.correctMovieTitle &&
+        validation.data.movieGuessId == validation.data.correctMovieId &&
         user
       ) {
         const { data } = await supabase

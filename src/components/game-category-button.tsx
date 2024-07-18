@@ -15,21 +15,21 @@ const GameCategoryButton = React.forwardRef<
   GameCategoryButtonProps
 >(({ gameCategory, className, children, ...props }, ref) => {
   return (
-    <Link href={`/category/${slugify(gameCategory.title, { lower: true })}`}>
-      <button
-        className={cn("w-full", className)}
-        ref={ref}
-        {...props}>
-        {children}
+    <button
+      className={cn("", className)}
+      ref={ref}
+      {...props}>
+      {children}
+      <Link href={`/category/${slugify(gameCategory.title, { lower: true })}`}>
         <BentoBox
           variant={"button"}
           backgroundColour={gameCategory.colour}
-          className="flex flex-col justify-end">
+          className="h-full w-full">
           <h4>{gameCategory.title}</h4>
           <p>{gameCategory.description}</p>
         </BentoBox>
-      </button>
-    </Link>
+      </Link>
+    </button>
   );
 });
 

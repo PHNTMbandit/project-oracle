@@ -1,6 +1,7 @@
 import { BentoBox } from "@/components/bento-box";
 import { MovieGuessForm } from "@/components/forms/movie-guess-form";
 import { getMovieByID, getMovieKeywordsByID } from "@/lib/movies";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/server";
 import Color from "color";
 import Image from "next/image";
@@ -28,35 +29,46 @@ export default async function QuizPage({ params }: QuizProps) {
     .single();
 
   return (
-    <section className="grid grid-cols-6 gap-3">
-      {data && (
-        <BentoBox
-          backgroundColour={Color("white")}
-          className="relative aspect-card overflow-hidden">
-          <Image
-            src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
-            alt={`${movie.title} Poster`}
-            fill
-            priority
-            sizes="1"
-          />
-        </BentoBox>
-      )}
+    <section className="grid grid-cols-4 grid-rows-4 gap-3">
       <BentoBox
-        backgroundColour={Color("#e9c46a")}
-        className="col-span-5">
-        <MovieGuessForm correctAnswer={movie} />
+        backgroundColour={Color("black")}
+        className="relative aspect-card overflow-hidden row-span-4 col-start-1">
+        <Image
+          src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
+          alt={`${movie.title} Poster`}
+          fill
+          priority
+          sizes="1"
+          className={cn("object-cover scale-125 blur-3xl transition-all", {
+            "scale-100 blur-none": data,
+          })}
+        />
       </BentoBox>
       <BentoBox
         backgroundColour={Color("#f4a261")}
-        className="col-span-6 row-start-2">
-        <ul className="flex flex-col h-full flex-wrap gap-4">
-          {keywords.map((keyword, index) => (
-            <li key={index}>
-              <h6>{keyword.name}</h6>
-            </li>
-          ))}
-        </ul>
+        className="col-span-3 row-span-3 col-start-2 row-start-1 justify-start">
+        {data ? (
+          <div>
+            <h3>{movie.title}</h3>
+          </div>
+        ) : (
+          <>
+            <h3>???</h3>
+            <h3>{keywords.length} Keywords</h3>
+            <ul className="flex flex-wrap gap-2">
+              {keywords.map((keyword, index) => (
+                <li key={index}>
+                  <p className="capitalize">{keyword.name}</p>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </BentoBox>
+      <BentoBox
+        backgroundColour={Color("#e9c46a")}
+        className="col-span-3 col-start-2">
+        {!data && <MovieGuessForm correctAnswer={movie} />}
       </BentoBox>
     </section>
   );

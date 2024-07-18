@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito_Sans as FontSans } from "next/font/google";
+import { Hanken_Grotesk as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/contexts/theme-provider";
@@ -23,14 +23,14 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased p-6",
+          "min-h-screen bg-background font-sans antialiased",
           fontSans.variable
         )}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem>
-          <main>{children}</main>
+          <main className="h-screen">{children}</main>
         </ThemeProvider>
       </body>
     </html>
