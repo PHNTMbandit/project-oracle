@@ -19,14 +19,14 @@ export async function submitGuess(prevState: any, formData: FormData) {
         user
       ) {
         const { data } = await supabase
-          .from("correct_guesses")
+          .from("keyword_correct_guesses")
           .select()
           .eq("movie_id", validation.data.correctMovieId)
           .eq("user_id", user.id)
           .single();
 
         if (!data) {
-          await supabase.from("correct_guesses").insert({
+          await supabase.from("keyword_correct_guesses").insert({
             user_id: user?.id,
             movie_id: validation.data.correctMovieId,
           });

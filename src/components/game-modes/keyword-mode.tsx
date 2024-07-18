@@ -1,7 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import Color from "color";
-import { data } from "tailwindcss/defaultTheme";
 import { BentoBox } from "../bento-box";
 import { MovieGuessForm } from "../forms/movie-guess-form";
 import Image from "next/image";
@@ -25,7 +24,7 @@ const KeywordMode: React.FC<KeywordModeProps> = async ({ movie }) => {
 
   const keywords = await getMovieKeywordsByID(movie.id);
   const { data } = await supabase
-    .from("correct_guesses")
+    .from("keyword_correct_guesses")
     .select()
     .eq("movie_id", movie.id)
     .eq("user_id", user.id)
