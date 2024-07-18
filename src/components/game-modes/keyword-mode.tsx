@@ -1,18 +1,20 @@
-import { BentoBox } from "@/components/bento-box";
-import { MovieGuessForm } from "@/components/forms/movie-guess-form";
-import { gameCategories } from "@/lib/game-categories";
-import { getMovieKeywordsByID } from "@/lib/movies";
+import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Movie } from "@/types/movie-types";
-import { createClient } from "@/utils/supabase/server";
 import Color from "color";
+import { data } from "tailwindcss/defaultTheme";
+import { BentoBox } from "../bento-box";
+import { MovieGuessForm } from "../forms/movie-guess-form";
 import Image from "next/image";
+import { Movie } from "@/types/movie-types";
+import { getMovieKeywordsByID } from "@/lib/movies";
+import { createClient } from "@/utils/supabase/server";
 
-type GameCategoryProps = {
-  params: { name: string };
-};
+export interface KeywordModeProps
+  extends React.AnchorHTMLAttributes<HTMLDivElement> {
+  movie: Movie;
+}
 
-export default async function GameCategoryPage({ params }: GameCategoryProps) {
+const KeywordMode: React.FC<KeywordModeProps> = async ({ movie }) => {
   const supabase = createClient();
   const {
     data: { user },
@@ -21,8 +23,6 @@ export default async function GameCategoryPage({ params }: GameCategoryProps) {
     throw new Error("User not found");
   }
 
-  const category = gameCategories[params.name];
-  const movie: Movie = (await category.query())[0];
   const keywords = await getMovieKeywordsByID(movie.id);
   const { data } = await supabase
     .from("correct_guesses")
@@ -32,7 +32,7 @@ export default async function GameCategoryPage({ params }: GameCategoryProps) {
     .single();
 
   return (
-    <section className="grid grid-cols-4 grid-rows-4 gap-3">
+    <section className={cn("grid grid-cols-4 grid-rows-4 gap-3")}>
       <BentoBox
         backgroundColour={Color("black")}
         className="relative aspect-card overflow-hidden row-span-4 col-start-1">
@@ -75,4 +75,16 @@ export default async function GameCategoryPage({ params }: GameCategoryProps) {
       </BentoBox>
     </section>
   );
-}
+};
+
+const ForwardedKeywordMode = React.forwardRef<HTMLDivElement, KeywordModeProps>(
+  (props, ref) => (
+    <div ref={ref}>
+      <KeywordMode {...props} />
+    </div>
+  )
+);
+
+ForwardedKeywordMode.displayName = "KeywordMode";
+
+export default ForwardedKeywordMode;
