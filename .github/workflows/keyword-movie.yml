@@ -1,38 +1,46 @@
-name: Update Keyword Movie Table
+name: Update Movies
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Runs daily at midnight; adjust as needed
-  workflow_dispatch: # Allows manual triggering of the workflow
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
-  update-movies:
+  sync-movies:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
+      - name: Download JSON file
+        run: |
+          curl -L http://files.tmdb.org/p/exports/movie_ids_05_15_2024.json.gz -o movies.json.gz
+          gunzip movies.json.gz
 
       - name: Install dependencies
         run: |
-          npm install
+          sudo apt-get install -y jq
 
-      - name: Download JSON file
-        run: |
-          curl -L -o movies.json.gz http://files.tmdb.org/p/exports/movie_ids_05_15_2024.json.gz
-
-      - name: Unzip JSON file
-        run: |
-          gunzip movies.json.gz
-
-      - name: Run Node.js script
+      - name: Process JSON and Sync with Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          npx ts-node processMovies.ts
+          # Extract a random movie ID from JSON
+          MOVIE_ID=$(jq -r '.[] | select(.id != null) | .id' movies.json | shuf -n 1)
+
+          # Check if movie ID exists in Supabase
+          MOVIE_EXISTS=$(curl -s -X GET "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day?select=id&movie_id=eq.$MOVIE_ID" \
+            -H "apikey:$SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" | jq '. | length')
+
+          if [ "$MOVIE_EXISTS" -eq 0 ]; then
+            # Insert movie ID into Supabase
+            curl -s -X POST "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day" \
+              -H "Content-Type: application/json" \
+              -H "apikey:$SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              -d '{"movie_id": '$MOVIE_ID'}'
+          else
+            echo "Movie ID $MOVIE_ID already exists in Supabase"
+          fi
