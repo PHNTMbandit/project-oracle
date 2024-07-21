@@ -1,20 +1,13 @@
-import { BentoBox } from "@/components/bento-box";
-import { GameCategoryButton } from "@/components/game-category-button";
-import { gameCategories } from "@/lib/game-categories";
-import { createClient } from "@/utils/supabase/server";
+import { GameModeButton } from "@/components/game-mode-button";
+import { gameModes } from "@/lib/game-modes";
 
 export default async function Home() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   return (
     <section className="grid grid-cols-6 gap-3">
-      {Object.values(gameCategories).map((category, index) => (
-        <GameCategoryButton
+      {Object.values(gameModes).map((gameMode, index) => (
+        <GameModeButton
           key={index}
-          gameCategory={category}
+          gameMode={gameMode}
           className="aspect-card"
         />
       ))}

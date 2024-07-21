@@ -1,0 +1,56 @@
+name: Insert Keyword Movie Of The Day into Supabase
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  insert_random_movie_id:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download JSON file
+        run: |
+          curl -o movies.json http://files.tmdb.org/p/exports/movie_ids_05_15_2024.json.gz
+
+      - name: Select Random Row and Insert ID
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          # Function to check if the ID exists in the Supabase table
+          check_id_exists() {
+            id=$1
+            exists=$(curl -s -X GET \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day?id=eq.$id" \
+              | jq 'length')
+            if [ "$exists" -gt 0 ]; then
+              return 0 # ID exists
+            else
+              return 1 # ID does not exist
+            fi
+          }
+
+          # Loop until a unique random ID is found
+          while : ; do
+            random_row=$(cat movies.json | jq '.[(length * rand) | floor]')
+            id=$(echo $random_row | jq -r '.id')
+            if check_id_exists $id; then
+              echo "ID $id already exists. Selecting another random movie..."
+            else
+              echo "ID $id is unique. Proceeding to insert into Supabase..."
+              break
+            fi
+          done
+
+          # Insert the unique ID into the Supabase table
+          curl -X POST \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"id\": \"$id\"}" \
+            $SUPABASE_URL/rest/v1/keyword_movie_of_the_day

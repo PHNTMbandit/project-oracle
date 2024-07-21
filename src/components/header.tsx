@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { createClient } from "@/utils/supabase/server";
 import { AccountButton } from "./account-button";
+import Link from "next/link";
 
 export interface HeaderProps
   extends React.AnchorHTMLAttributes<HTMLDivElement> {}
@@ -23,7 +24,13 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         ref={ref}
         {...props}>
         {children}
-        <Logo />
+        <Link
+          href={"/"}
+          className="w-fit h-fit">
+          <button>
+            <Logo />
+          </button>
+        </Link>
         <div className="col-start-3 space-x-3 place-self-end">
           <AccountButton user={user} />
         </div>

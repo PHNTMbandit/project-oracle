@@ -1,16 +1,19 @@
-import { BentoBox } from "@/components/bento-box";
-import { MovieGuessForm } from "@/components/forms/movie-guess-form";
-import { getMovieByID, getMovieKeywordsByID } from "@/lib/movies";
+import * as React from "react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/server";
 import Color from "color";
+import { BentoBox } from "../bento-box";
+import { MovieGuessForm } from "../forms/movie-guess-form";
 import Image from "next/image";
+import { Movie } from "@/types/movie-types";
+import { getMovieKeywordsByID } from "@/lib/movies";
+import { createClient } from "@/utils/supabase/server";
 
-type QuizProps = {
-  params: { quizId: string };
-};
+export interface KeywordModeProps
+  extends React.AnchorHTMLAttributes<HTMLDivElement> {
+  movie: Movie;
+}
 
-export default async function QuizPage({ params }: QuizProps) {
+const KeywordMode: React.FC<KeywordModeProps> = async ({ movie }) => {
   const supabase = createClient();
   const {
     data: { user },
@@ -19,17 +22,16 @@ export default async function QuizPage({ params }: QuizProps) {
     throw new Error("User not found");
   }
 
-  const movie = await getMovieByID(Number(params.quizId));
-  const keywords = await getMovieKeywordsByID(Number(params.quizId));
+  const keywords = await getMovieKeywordsByID(movie.id);
   const { data } = await supabase
-    .from("correct_guesses")
+    .from("keyword_correct_guesses")
     .select()
     .eq("movie_id", movie.id)
     .eq("user_id", user.id)
     .single();
 
   return (
-    <section className="grid grid-cols-4 grid-rows-4 gap-3">
+    <section className={cn("grid grid-cols-4 grid-rows-4 gap-3")}>
       <BentoBox
         backgroundColour={Color("black")}
         className="relative aspect-card overflow-hidden row-span-4 col-start-1">
@@ -72,4 +74,16 @@ export default async function QuizPage({ params }: QuizProps) {
       </BentoBox>
     </section>
   );
-}
+};
+
+const ForwardedKeywordMode = React.forwardRef<HTMLDivElement, KeywordModeProps>(
+  (props, ref) => (
+    <div ref={ref}>
+      <KeywordMode {...props} />
+    </div>
+  )
+);
+
+ForwardedKeywordMode.displayName = "KeywordMode";
+
+export default ForwardedKeywordMode;
