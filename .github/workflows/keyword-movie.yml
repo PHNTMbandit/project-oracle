@@ -23,11 +23,11 @@ jobs:
         run: |
           # Function to check if the ID exists in the Supabase table
           check_id_exists() {
-            id=$1
+            movie_id=$1
             exists=$(curl -s -X GET \
               -H "apikey: $SUPABASE_KEY" \
               -H "Authorization: Bearer $SUPABASE_KEY" \
-              "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day?id=eq.$id" \
+              "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day?movie_id=eq.$movie_id" \
               | jq 'length')
             if [ "$exists" -gt 0 ]; then
               return 0 # ID exists
@@ -41,19 +41,19 @@ jobs:
             length=$(jq length movies.json)
             random_index=$(shuf -i 0-$(($length - 1)) -n 1)
             random_row=$(jq .[$random_index] movies.json)
-            id=$(echo $random_row | jq -r '.id')
-            if check_id_exists $id; then
-              echo "ID $id already exists. Selecting another random movie..."
+            movie_id=$(echo $random_row | jq -r '.id')
+            if check_id_exists $movie_id; then
+              echo "Movie ID $movie_id already exists. Selecting another random movie..."
             else
-              echo "ID $id is unique. Proceeding to insert into Supabase..."
+              echo "Movie ID $movie_id is unique. Proceeding to insert into Supabase..."
               break
             fi
           done
 
-          # Insert the unique ID into the Supabase table
+          # Insert the unique movie ID into the Supabase table
           curl -X POST \
             -H "apikey: $SUPABASE_KEY" \
             -H "Authorization: Bearer $SUPABASE_KEY" \
             -H "Content-Type: application/json" \
-            -d "{\"id\": \"$id\"}" \
+            -d "{\"movie_id\": \"$movie_id\"}" \
             $SUPABASE_URL/rest/v1/keyword_movie_of_the_day
