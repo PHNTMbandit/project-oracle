@@ -38,7 +38,9 @@ jobs:
 
           # Loop until a unique random ID is found
           while : ; do
-            random_row=$(cat movies.json | jq '.[(length * rand) | floor]')
+            length=$(jq length movies.json)
+            random_index=$(shuf -i 0-$(($length - 1)) -n 1)
+            random_row=$(jq .[$random_index] movies.json)
             id=$(echo $random_row | jq -r '.id')
             if check_id_exists $id; then
               echo "ID $id already exists. Selecting another random movie..."
