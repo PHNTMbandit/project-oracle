@@ -1,59 +1,38 @@
-name: Insert Keyword Movie Of The Day into Supabase
+name: Update Keyword Movie Table
 
 on:
   schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+    - cron: "0 0 * * *" # Runs daily at midnight; adjust as needed
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
-  insert_random_movie_id:
+  update-movies:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm install
 
       - name: Download JSON file
         run: |
-          curl -o movies.json http://files.tmdb.org/p/exports/movie_ids_05_15_2024.json.gz
+          curl -L -o movies.json.gz http://files.tmdb.org/p/exports/movie_ids_05_15_2024.json.gz
 
-      - name: Select Random Row and Insert ID
+      - name: Unzip JSON file
+        run: |
+          gunzip movies.json.gz
+
+      - name: Run Node.js script
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          # Function to check if the ID exists in the Supabase table
-          check_id_exists() {
-            movie_id=$1
-            exists=$(curl -s -X GET \
-              -H "apikey: $SUPABASE_KEY" \
-              -H "Authorization: Bearer $SUPABASE_KEY" \
-              "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day?movie_id=eq.$movie_id" \
-              | jq 'length')
-            if [ "$exists" -gt 0 ]; then
-              return 0 # ID exists
-            else
-              return 1 # ID does not exist
-            fi
-          }
-
-          # Loop until a unique random ID is found
-          while : ; do
-            length=$(jq length movies.json)
-            random_index=$(shuf -i 0-$(($length - 1)) -n 1)
-            random_row=$(jq .[$random_index] movies.json)
-            movie_id=$(echo $random_row | jq -r '.id')
-            if check_id_exists $movie_id; then
-              echo "Movie ID $movie_id already exists. Selecting another random movie..."
-            else
-              echo "Movie ID $movie_id is unique. Proceeding to insert into Supabase..."
-              break
-            fi
-          done
-
-          # Insert the unique movie ID into the Supabase table
-          curl -X POST \
-            -H "apikey: $SUPABASE_KEY" \
-            -H "Authorization: Bearer $SUPABASE_KEY" \
-            -H "Content-Type: application/json" \
-            -d "{\"movie_id\": \"$movie_id\"}" \
-            $SUPABASE_URL/rest/v1/keyword_movie_of_the_day
+          npx ts-node processMovies.ts
