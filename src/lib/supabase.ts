@@ -7,7 +7,7 @@ export const keywordMovieOfTheDay: () => Promise<Movie | null> = async () => {
   const { data, error } = await supabase
     .from("keyword_movie_of_the_day")
     .select()
-    .order("id", { ascending: true })
+    .order("id", { ascending: false })
     .limit(1)
     .single();
 
