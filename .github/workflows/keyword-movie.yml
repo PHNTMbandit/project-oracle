@@ -33,7 +33,7 @@ jobs:
           head -n 10 movies.json
 
           # Extract a random movie ID from JSON
-          MOVIE_ID=$(jq -r '.[] | select(.id != null) | .id' movies.json | shuf -n 1)
+          MOVIE_ID=$(jq -r '.id' movies.json | shuf -n 1)
           if [ -z "$MOVIE_ID" ]; then
             echo "No movie ID found."
             exit 1
