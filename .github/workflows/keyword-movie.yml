@@ -2,11 +2,11 @@ name: Update Movies
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Run daily at midnight, adjust as needed
-  workflow_dispatch: # Allows manual triggering from the GitHub Actions tab
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
-  update-movies:
+  sync-movies:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,11 +41,12 @@ jobs:
 
           echo "Selected Movie ID: $MOVIE_ID"
 
+          # Call Supabase function to insert movie ID if not exists
           RESPONSE=$(curl -s -w "%{http_code}" -o response.json -X POST "$SUPABASE_URL/rest/v1/rpc/insert_movie_if_not_exists" \
-            -d '{ "p_movie_id": "value" }' \
             -H "Content-Type: application/json" \
-            -H "apikey: $SUPABASE_KEY" \
+            -H "apikey:$SUPABASE_KEY" \
             -H "Authorization: Bearer $SUPABASE_KEY" \
+            -d '{"p_movie_id": '"$MOVIE_ID"'}')
 
           HTTP_CODE=$(echo $RESPONSE | tail -n1)
           BODY=$(cat response.json)
