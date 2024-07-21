@@ -7,5 +7,5 @@ export type GameMode = {
   description: string;
   colour: Color;
   component: ComponentType<any>;
-  query: () => Promise<Movie[]>;
+  query: () => Promise<Movie | null>;
 };
