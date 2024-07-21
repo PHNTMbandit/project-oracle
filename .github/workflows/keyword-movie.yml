@@ -2,11 +2,11 @@ name: Update Movies
 
 on:
   schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+    - cron: "0 0 * * *" # Run daily at midnight, adjust as needed
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions tab
 
 jobs:
-  sync-movies:
+  update-movies:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,27 +20,32 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install -y jq
+          sudo apt-get update
+          sudo apt-get install -y jq curl
 
       - name: Process JSON and Sync with Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
+          # Check the JSON structure
+          echo "Checking JSON structure..."
+          head -n 10 movies.json
+
           # Extract a random movie ID from JSON
           MOVIE_ID=$(jq -r '.[] | select(.id != null) | .id' movies.json | shuf -n 1)
-
-          # Check if movie ID exists in Supabase
-          MOVIE_EXISTS=$(curl -s -X GET "$SUPABASE_URL/rest/v1/keyword_movie_of_the_day?select=id&movie_id=eq.$MOVIE_ID" \
-            -H "apikey:$SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" | jq '. | length')
-
-          if [ "$MOVIE_EXISTS" -eq 0 ]; then
-            # Insert movie ID into Supabase
-            curl -s -X POST "$SUPABASE_URL/rest/v1/rpc/insert_movie_if_not_exists" \
-              -H "Content-Type: application/json" \
-              -H "apikey:$SUPABASE_KEY" \
-              -H "Authorization: Bearer $SUPABASE_KEY" \
-              -d '{"movie_id": '$MOVIE_ID'}'
-          else
-            echo "Movie ID $MOVIE_ID already exists in Supabase"
+          if [ -z "$MOVIE_ID" ]; then
+            echo "No movie ID found."
+            exit 1
           fi
+
+          echo "Selected Movie ID: $MOVIE_ID"
+
+          # Call Supabase function to insert movie ID if not exists
+          curl -s -X POST "$SUPABASE_URL/rest/v1/rpc/insert_movie_if_not_exists" \
+            -H "Content-Type: application/json" \
+            -H "apikey:$SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            -d '{"movie_id": '$MOVIE_ID'}'
+
+          echo "Processed Movie ID $MOVIE_ID"
